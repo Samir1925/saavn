@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JioSaavn Clone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-music"></i>
+                <span>JioSaavn</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="active"><i class="fas fa-home"></i> Home</li>
+                <li><i class="fas fa-search"></i> Search</li>
+                <li><i class="fas fa-compact-disc"></i> Albums</li>
+                <li><i class="fas fa-microphone"></i> Artists</li>
+                <li><i class="fas fa-list"></i> Playlists</li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search for songs, albums, or artists...">
+                </div>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="content">
+                <!-- Home Section -->
+                <section id="home-section" class="active-section">
+                    <h2>Featured Songs</h2>
+                    <div class="featured-songs" id="featured-songs">
+                        <!-- Songs will be loaded here -->
+                    </div>
+
+                    <h2>Top Albums</h2>
+                    <div class="albums-grid" id="top-albums">
+                        <!-- Albums will be loaded here -->
+                    </div>
+
+                    <h2>Popular Artists</h2>
+                    <div class="artists-grid" id="popular-artists">
+                        <!-- Artists will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Search Results Section -->
+                <section id="search-section">
+                    <h2>Search Results</h2>
+                    <div class="search-results" id="search-results">
+                        <!-- Search results will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Albums Section -->
+                <section id="albums-section">
+                    <h2>All Albums</h2>
+                    <div class="albums-grid" id="all-albums">
+                        <!-- All albums will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Artists Section -->
+                <section id="artists-section">
+                    <h2>All Artists</h2>
+                    <div class="artists-grid" id="all-artists">
+                        <!-- All artists will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Album Details Section -->
+                <section id="album-details-section">
+                    <div class="album-header" id="album-header">
+                        <!-- Album details will be loaded here -->
+                    </div>
+                    <div class="album-songs" id="album-songs">
+                        <!-- Album songs will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Artist Details Section -->
+                <section id="artist-details-section">
+                    <div class="artist-header" id="artist-header">
+                        <!-- Artist details will be loaded here -->
+                    </div>
+                    <div class="artist-songs" id="artist-songs">
+                        <!-- Artist songs will be loaded here -->
+                    </div>
+                    <div class="artist-albums" id="artist-albums">
+                        <!-- Artist albums will be loaded here -->
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Music Player -->
+        <div class="music-player">
+            <div class="song-info">
+                <img src="" alt="Album Art" id="player-album-art">
+                <div class="song-details">
+                    <h3 id="player-song-title">No song selected</h3>
+                    <p id="player-song-artist">Select a song to play</p>
+                </div>
+            </div>
+            <div class="player-controls">
+                <button id="prev-btn"><i class="fas fa-step-backward"></i></button>
+                <button id="play-btn"><i class="fas fa-play"></i></button>
+                <button id="next-btn"><i class="fas fa-step-forward"></i></button>
+            </div>
+            <div class="progress-container">
+                <span id="current-time">0:00</span>
+                <input type="range" id="progress-bar" min="0" max="100" value="0">
+                <span id="duration">0:00</span>
+            </div>
+            <div class="volume-control">
+                <i class="fas fa-volume-up"></i>
+                <input type="range" id="volume-bar" min="0" max="100" value="50">
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
