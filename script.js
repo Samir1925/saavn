@@ -46,7 +46,7 @@ const sections = {
 const navItems = document.querySelectorAll('.nav-menu li');
 
 // API Base URL
-const API_BASE_URL = 'https://saavn.dev';
+const API_BASE_URL = 'https://jiosaavn-api-privatecvc2.vercel.app/';
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
@@ -114,7 +114,7 @@ function showSection(sectionName) {
 // API Fetch Functions
 async function fetchFeaturedSongs() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/search/songs?query=popular`);
+        const response = await fetch(`${API_BASE_URL}/search/songs?query=popular`);
         const data = await response.json();
         
         if (data.success) {
@@ -129,7 +129,7 @@ async function fetchFeaturedSongs() {
 
 async function fetchTopAlbums() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/search/albums?query=popular`);
+        const response = await fetch(`${API_BASE_URL}/search/albums?query=popular`);
         const data = await response.json();
         
         if (data.success) {
@@ -143,7 +143,7 @@ async function fetchTopAlbums() {
 
 async function fetchPopularArtists() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/search/artists?query=popular`);
+        const response = await fetch(`${API_BASE_URL}/search/artists?query=popular`);
         const data = await response.json();
         
         if (data.success) {
@@ -157,7 +157,7 @@ async function fetchPopularArtists() {
 
 async function fetchAllAlbums() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/search/albums?query=latest`);
+        const response = await fetch(`${API_BASE_URL}/search/albums?query=latest`);
         const data = await response.json();
         
         if (data.success) {
@@ -170,7 +170,7 @@ async function fetchAllAlbums() {
 
 async function fetchAllArtists() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/search/artists?query=popular`);
+        const response = await fetch(`${API_BASE_URL}/search/artists?query=popular`);
         const data = await response.json();
         
         if (data.success) {
@@ -183,7 +183,7 @@ async function fetchAllArtists() {
 
 async function searchSongs(query) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/search?query=${encodeURIComponent(query)}`);
+        const response = await fetch(`${API_BASE_URL}/search?query=${encodeURIComponent(query)}`);
         const data = await response.json();
         
         if (data.success) {
@@ -196,7 +196,7 @@ async function searchSongs(query) {
 
 async function fetchAlbumDetails(albumId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/albums?id=${albumId}`);
+        const response = await fetch(`${API_BASE_URL}/albums?id=${albumId}`);
         const data = await response.json();
         
         if (data.success) {
@@ -210,7 +210,7 @@ async function fetchAlbumDetails(albumId) {
 
 async function fetchArtistDetails(artistId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/artists/${artistId}`);
+        const response = await fetch(`${API_BASE_URL}/artists/${artistId}`);
         const data = await response.json();
         
         if (data.success) {
