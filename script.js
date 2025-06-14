@@ -46,7 +46,7 @@ const sections = {
 const navItems = document.querySelectorAll('.nav-menu li');
 
 // API Base URL
-const API_BASE_URL = 'https://jiosaavn-api-privatecvc2.vercel.app/';
+const API_BASE_URL = 'https://jiosaavn-api-privatecvc2.vercel.app';
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
