@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artists - Nexus Music</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e44ff;
+            --primary-light: #9d7dff;
+            --primary-dark: #4a1dd1;
+            --bg: #0f0e17;
+            --card-bg: #1e1c2e;
+            --text: #fffffe;
+            --text-secondary: #b8b8d1;
+            --player-bg: #161324;
+            --progress-bg: #2d2a4a;
+            --progress-active: var(--primary);
+            --nav-height: 60px;
+            --pill-bg: rgba(110, 68, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Navigation Bar */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--nav-height);
+            background: rgba(22, 19, 36, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-light);
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 6px 12px;
+            flex: 1;
+            margin: 0 10px;
+            max-width: 500px;
+        }
+
+        .search-container input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            padding: 6px 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-container button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .search-container button:hover {
+            transform: scale(1.1);
+        }
+
+        .container {
+            padding: 100px 15px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Artist Section */
+        .artist-section {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .artist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .artist-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .artist-card:hover {
+            transform: translateY(-5px);
+            background: linear-gradient(135deg, var(--primary-dark), var(--card-bg));
+        }
+
+        .artist-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 30px;
+            color: white;
+        }
+
+        .artist-name {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .artist-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Nexus Music</div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="artists.html" class="nav-link">Artists</a>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search artists..." aria-label="Search artists">
+            <button id="searchButton" aria-label="Search">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="artist-section">
+            <h2 class="section-title"><i class="fas fa-microphone"></i>Popular Artists</h2>
+            <div class="artist-grid" id="artistGrid">
+                <!-- Artists will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Artist data
+        const artists = [
+            { name: "Arijit Singh", icon: "fas fa-microphone" },
+            { name: "Taylor Swift", icon: "fas fa-guitar" },
+            { name: "Drake", icon: "fas fa-headphones" },
+            { name: "Lata Mangeshkar", icon: "fas fa-music" },
+            { name: "The Weeknd", icon: "fas fa-star" },
+            { name: "Bad Bunny", icon: "fas fa-fire" },
+            { name: "BTS", icon: "fas fa-users" },
+            { name: "Shreya Ghoshal", icon: "fas fa-microphone-alt" },
+            { name: "Ed Sheeran", icon: "fas fa-guitar" },
+            { name: "Adele", icon: "fas fa-heart" },
+            { name: "Justin Bieber", icon: "fas fa-compact-disc" },
+            { name: "Diljit Dosanjh", icon: "fas fa-turban" },
+            { name: "A.R. Rahman", icon: "fas fa-music" },
+            { name: "Billie Eilish", icon: "fas fa-ghost" },
+            { name: "Post Malone", icon: "fas fa-beer" },
+            { name: "Dua Lipa", icon: "fas fa-moon" }
+        ];
+
+        // Display artists
+        const artistGrid = document.getElementById('artistGrid');
+        
+        artists.forEach(artist => {
+            const artistCard = document.createElement('div');
+            artistCard.className = 'artist-card';
+            artistCard.innerHTML = `
+                <div class="artist-icon">
+                    <i class="${artist.icon}"></i>
+                </div>
+                <div class="artist-name">${artist.name}</div>
+            `;
+            
+            artistCard.addEventListener('click', () => {
+                window.location.href = `sangeet.html?search=${encodeURIComponent(artist.name)}`;
+            });
+            
+            artistGrid.appendChild(artistCard);
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+
+        function performSearch(query) {
+            if (query.trim()) {
+                window.location.href = `index.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        searchButton.addEventListener('click', () => performSearch(searchInput.value));
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch(searchInput.value);
+        });
+    </script>
+</body>
+</html>
