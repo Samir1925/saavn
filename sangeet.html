@@ -1025,13 +1025,15 @@ function decodeHTMLEntities(text) {
             const downloadUrl = song.downloadUrl[3].link;
             
             const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = `${song.name} - ${song.primaryArtists}.mp3`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+// Construct the download URL using your proxy service
+link.href = `https://downforce.rf.gd/?url=${encodeURIComponent(downloadUrl)}`;
+link.download = `${song.name} - ${song.primaryArtists}.mp3`;
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+
+showNotification('Download started');
             
-            showNotification('Download started');
         }
 
         function openPlayer() {
