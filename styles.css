@@ -11,7 +11,19 @@
     --progress-active: var(--primary);
     --nav-height: 60px;
 }
+a {
+  text-decoration: none;     /* Removes underline */
+  color: inherit;            /* Inherits color from parent */
+}
 
+a:hover,
+a:focus,
+a:active {
+  outline: none;             /* Removes blue outline on focus/active */
+  color: inherit;            /* Keeps same color */
+  background: transparent;   /* Removes background change, if any */
+  text-decoration: none;     /* Ensures no underline on hover */
+}
 * {
     margin: 0;
     padding: 0;
