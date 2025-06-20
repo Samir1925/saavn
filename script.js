@@ -559,3 +559,93 @@ function setupEventListeners() {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', initPlayer);
+// Update the playSong function to ensure proper state management
+function playSong(song) {
+    if (!song || !song.downloadUrl || !Array.isArray(song.downloadUrl) || song.downloadUrl.length < 4 || !song.downloadUrl[3]?.link) {
+        showNotification('Invalid song data');
+        return;
+    }
+
+    const downloadUrl = song.downloadUrl[3].link;
+    
+    // Reset audio and prepare for new song
+    audio.pause();
+    audio.currentTime = 0;
+    
+    try {
+        if (audio.src !== downloadUrl) {
+            audio.src = downloadUrl;
+            // Use a promise chain to ensure proper loading
+            audio.load()
+                .then(() => {
+                    return audio.play();
+                })
+                .then(() => {
+                    updatePlayerInfo(song);
+                    updateMiniPlayer(song);
+                    highlightCurrentSong();
+                    showNotification(`Now playing: ${decodeHTMLEntities(song.name)}`);
+                    isPlaying = true;
+                    updatePlayButton();
+                })
+                .catch(error => {
+                    console.error('Playback error:', error);
+                    showNotification('Error playing song');
+                    isPlaying = false;
+                    updatePlayButton();
+                });
+        } else {
+            // If same song, just play/pause
+            if (audio.paused) {
+                audio.play()
+                    .then(() => {
+                        isPlaying = true;
+                        updatePlayButton();
+                    })
+                    .catch(handlePlayError);
+            } else {
+                audio.pause();
+                isPlaying = false;
+                updatePlayButton();
+            }
+        }
+    } catch (error) {
+        console.error('Song setup error:', error);
+        showNotification('Error loading song');
+    }
+}
+
+// Update the togglePlay function
+function togglePlay() {
+    if (songs.length === 0) {
+        showNotification('No songs available');
+        return;
+    }
+
+    if (currentSongIndex === -1) {
+        currentSongIndex = 0;
+        playSong(songs[currentSongIndex]);
+        return;
+    }
+
+    if (audio.paused) {
+        audio.play()
+            .then(() => {
+                isPlaying = true;
+                updatePlayButton();
+            })
+            .catch(handlePlayError);
+    } else {
+        audio.pause();
+        isPlaying = false;
+        updatePlayButton();
+    }
+}
+
+// Add this to your setupAudioListeners function
+audio.addEventListener('canplaythrough', () => {
+    // This helps with playback readiness on mobile devices
+    if (isPlaying) {
+        audio.play().catch(handlePlayError);
+    }
+});
