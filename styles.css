@@ -94,16 +94,21 @@ nav {
 }
 
 .logo {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--primary-color);
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.logo i {
-    font-size: 22px;
+.logo-img {
+    height: 30px; /* Adjust based on your needs */
+    width: auto;
+    border-radius: 4px; /* Optional for rounded corners */
+    object-fit: contain;
+}
+
+/* Remove the music icon if you don't want it */
+.logo .fa-music {
+    display: none;
 }
 
 .search-container {
