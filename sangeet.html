@@ -49,7 +49,26 @@ body.dark-mode {
     --progress-fill: var(--dark-progress-fill);
     --shadow: var(--dark-shadow);
 }
+/* Remove blue highlight on tap/click for all elements */
+* {
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+    outline: none;
+}
 
+/* Specifically for buttons and interactive elements */
+button, .song-card, .control-btn, .feature-btn, 
+.mini-play-btn, .open-player-btn, .theme-toggle {
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+    outline: none;
+    user-select: none;
+}
+
+/* Remove focus outlines (optional) */
+button:focus, input:focus, a:focus {
+    outline: none;
+}
 /* Add this style for the theme toggle */
 .theme-toggle {
     background-color: var(--background-color);
@@ -209,6 +228,7 @@ body.dark-mode {
             position: relative;
             cursor: pointer;
             box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .song-card:hover {
@@ -218,6 +238,8 @@ body.dark-mode {
 
         .song-card.active {
             box-shadow: 0 0 0 3px var(--primary-color);
+            transform: scale(0.98); /* subtle press effect instead of highlight */
+
         }
 
         .song-card img {
@@ -226,6 +248,10 @@ body.dark-mode {
             object-fit: cover;
             display: block;
         }
+button:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+}
 
         .play-overlay {
             position: absolute;
