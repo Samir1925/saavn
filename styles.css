@@ -320,9 +320,9 @@ button:active {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 12px 15px;
+    padding: 12px 25px;
     border-radius: 30px;
-    font-weight: 600;
+    font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
