@@ -48,8 +48,7 @@ let currentPage = 1;
 let currentQuery = 'Hindi';
 let isLoading = false;
 let hasMoreSongs = true;
-let loadedPages = new Set();
-let displayedSongIds = new Set();
+let loadedSongIds = new Set();
 
 // Initialize Player
 function initPlayer() {
@@ -243,17 +242,23 @@ async function searchSongs(query, append = false) {
     isLoading = true;
     loadMoreBtn.disabled = true;
     loadSpinner.style.display = 'inline-block';
-    loadMoreBtn.querySelector('span').style.display = 'none';
-    
+    if (loadMoreBtn.querySelector('span')) {
+        loadMoreBtn.querySelector('span').style.display = 'none';
+    }
+
     try {
-        // Check if we've already loaded this page
-        if (loadedPages.has(currentPage)) {
-            showNotification('Already loaded these songs');
-            return;
+        const response = await fetch(`https://jiosaavn-api-privatecvc2.vercel.app/search/songs?query=${encodeURIComponent(query)}&limit=40&page=${currentPage}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.data || !data.data.results) {
+            throw new Error('Invalid API response format');
         }
 
-        const response = await fetch(`https://jiosaavn-api-privatecvc2.vercel.app/search/songs?query=${encodeURIComponent(query)}&limit=40&page=${currentPage}`);
-        const data = await response.json();
         const newSongs = data.data.results.filter(song => song.downloadUrl);
         
         if (newSongs.length === 0) {
@@ -262,55 +267,51 @@ async function searchSongs(query, append = false) {
                 showNotification('No songs found');
                 songResults.innerHTML = '<p>No songs found. Try a different search.</p>';
             } else {
-                showNotification('No more songs to load');
-                loadMoreBtn.style.display = 'none';
+                showNotification('No more songs available');
             }
+            loadMoreBtn.style.display = 'none';
             return;
         }
 
-        // Mark this page as loaded
-        loadedPages.add(currentPage);
-
         // Filter out duplicates
-        const uniqueNewSongs = newSongs.filter(song => !displayedSongIds.has(song.id));
-
+        const uniqueNewSongs = newSongs.filter(song => !loadedSongIds.has(song.id));
+        
         if (uniqueNewSongs.length === 0 && append) {
-            showNotification('No new songs found in this batch');
+            showNotification('No new songs in this batch');
             currentPage++;
-            return loadMoreSongs();
+            return searchSongs(query, true);
         }
+
+        // Add to loaded songs
+        uniqueNewSongs.forEach(song => loadedSongIds.add(song.id));
 
         if (append) {
             songs = [...songs, ...uniqueNewSongs];
         } else {
             songs = uniqueNewSongs;
             originalOrder = [...uniqueNewSongs];
-            loadedPages.clear();
-            loadedPages.add(1);
-            displayedSongIds.clear();
+            loadedSongIds = new Set(uniqueNewSongs.map(song => song.id));
+            currentPage = 1;
         }
-        
-        // Add new song IDs to tracking set
-        uniqueNewSongs.forEach(song => displayedSongIds.add(song.id));
-        
+
         displaySongs();
-        showNotification(`Loaded ${uniqueNewSongs.length} new songs`);
+        showNotification(`Loaded ${uniqueNewSongs.length} songs`);
         
-        if (uniqueNewSongs.length > 0) {
-            hasMoreSongs = true;
-            loadMoreBtn.disabled = false;
-            loadMoreBtn.style.display = 'flex';
-        } else {
-            hasMoreSongs = false;
-            loadMoreBtn.style.display = 'none';
-        }
+        hasMoreSongs = newSongs.length >= 40;
+        loadMoreBtn.disabled = false;
+        loadMoreBtn.style.display = hasMoreSongs ? 'flex' : 'none';
+
     } catch (error) {
         console.error('Error fetching songs:', error);
-        showNotification('Failed to load songs');
+        showNotification('Failed to load songs. Please try again.');
+        hasMoreSongs = false;
+        loadMoreBtn.style.display = 'none';
     } finally {
         isLoading = false;
         loadSpinner.style.display = 'none';
-        loadMoreBtn.querySelector('span').style.display = 'inline';
+        if (loadMoreBtn.querySelector('span')) {
+            loadMoreBtn.querySelector('span').style.display = 'inline';
+        }
     }
 }
 
@@ -326,9 +327,6 @@ function displaySongs() {
     }
     
     songs.forEach((song, index) => {
-        // Skip if we've already displayed this song
-        if (!displayedSongIds.has(song.id)) return;
-        
         const songCard = document.createElement('div');
         songCard.className = 'song-card';
         if (index === currentSongIndex) {
@@ -421,5 +419,41 @@ function checkDarkModePreference() {
     }
 }
 
+// Event Listeners
+function setupEventListeners() {
+    closePlayer.addEventListener('click', closePlayerPopup);
+    overlay.addEventListener('click', closePlayerPopup);
+    playBtn.addEventListener('click', togglePlay);
+    prevBtn.addEventListener('click', playPrevious);
+    nextBtn.addEventListener('click', playNext);
+    shuffleBtn.addEventListener('click', toggleShuffle);
+    repeatBtn.addEventListener('click', toggleRepeat);
+    lofiBtn.addEventListener('click', toggleLofi);
+    downloadBtn.addEventListener('click', downloadCurrent);
+    progressBar.addEventListener('click', seek);
+    miniPlayBtn.addEventListener('click', togglePlay);
+    openPlayerBtn.addEventListener('click', openPlayer);
+    themeToggle.addEventListener('click', toggleTheme);
+    
+    loadMoreBtn.addEventListener('click', loadMoreSongs);
+    searchButton.addEventListener('click', () => {
+        const query = searchInput.value.trim() || 'Hindi';
+        currentQuery = query;
+        currentPage = 1;
+        searchSongs(query);
+    });
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = searchInput.value.trim() || 'Hindi';
+            currentQuery = query;
+            currentPage = 1;
+            searchSongs(query);
+        }
+    });
+}
+
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', initPlayer);
+document.addEventListener('DOMContentLoaded', () => {
+    setupEventListeners();
+    initPlayer();
+});
