@@ -55,6 +55,7 @@ function initPlayer() {
     setupAudioListeners();
     checkDarkModePreference();
     searchSongs(currentQuery);
+    setupEventListeners();
 }
 
 // Audio Event Listeners
@@ -73,6 +74,13 @@ function setupAudioListeners() {
     audio.addEventListener('timeupdate', updateProgress);
     audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('error', handleAudioError);
+    audio.addEventListener('canplay', handleCanPlay);
+}
+
+function handleCanPlay() {
+    if (isPlaying) {
+        audio.play().catch(handlePlayError);
+    }
 }
 
 function handleAudioError() {
@@ -105,7 +113,7 @@ function handlePlayError(error) {
 }
 
 function playSong(song) {
-    if (!song?.downloadUrl?.[3]?.link) {
+    if (!song || !song.downloadUrl || !Array.isArray(song.downloadUrl) || song.downloadUrl.length < 4 || !song.downloadUrl[3]?.link) {
         showNotification('Invalid song data');
         return;
     }
@@ -118,18 +126,28 @@ function playSong(song) {
             audio.load();
         }
 
-        audio.play()
-            .then(() => {
-                updatePlayerInfo(song);
-                updateMiniPlayer(song);
-                highlightCurrentSong();
-                showNotification(`Now playing: ${decodeHTMLEntities(song.name)}`);
-            })
-            .catch(handlePlayError);
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    updatePlayerInfo(song);
+                    updateMiniPlayer(song);
+                    highlightCurrentSong();
+                    showNotification(`Now playing: ${decodeHTMLEntities(song.name)}`);
+                })
+                .catch(handlePlayError);
+        }
     } catch (error) {
         console.error('Song setup error:', error);
         showNotification('Error loading song');
     }
+}
+
+function updatePlayerInfo(song) {
+    playerTitle.textContent = decodeHTMLEntities(song.name);
+    playerArtist.textContent = decodeHTMLEntities(song.primaryArtists);
+    playerImage.src = song.image[2].link;
 }
 
 function updatePlayButton() {
@@ -199,25 +217,35 @@ function seek(e) {
     audio.currentTime = (clickX / progressWidth) * audio.duration;
 }
 
-// Shuffle/Repeat
+// Shuffle/Repeat/LOFI
 function toggleShuffle() {
     isShuffle = !isShuffle;
     shuffleBtn.classList.toggle('active');
     
     if (isShuffle) {
         const currentSong = currentSongIndex >= 0 ? songs[currentSongIndex] : null;
-        const shuffled = [...songs];
         
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        // Fisher-Yates shuffle optimized
+        const shuffled = [...songs];
+        let currentPos = currentSong ? shuffled.indexOf(currentSong) : -1;
+        
+        // Start from the end, leave current song in place if it exists
+        const startIdx = currentPos > 0 ? 1 : 0;
+        const endIdx = shuffled.length - 1;
+        
+        for (let i = endIdx; i > startIdx; i--) {
+            // Don't shuffle the current song if it exists
+            if (currentPos > 0 && i === currentPos) continue;
+            
+            const j = Math.floor(Math.random() * (currentPos > 0 && i > currentPos ? i : i + 1));
+            if (j !== currentPos) {
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
         }
         
-        if (currentSong) {
-            const currentPos = shuffled.indexOf(currentSong);
-            if (currentPos > 0) {
-                [shuffled[0], shuffled[currentPos]] = [shuffled[currentPos], shuffled[0]];
-            }
+        // Ensure current song is first if it exists
+        if (currentPos > 0) {
+            [shuffled[0], shuffled[currentPos]] = [shuffled[currentPos], shuffled[0]];
         }
         
         songs = shuffled;
@@ -233,6 +261,72 @@ function toggleRepeat() {
     isRepeat = !isRepeat;
     repeatBtn.classList.toggle('active');
     showNotification(isRepeat ? 'Repeat enabled' : 'Repeat disabled');
+}
+
+function toggleLofi() {
+    if (!audioContext) {
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            sourceNode = audioContext.createMediaElementSource(audio);
+            reverbNode = audioContext.createConvolver();
+            
+            // Create a simple impulse response for reverb
+            const bufferLength = audioContext.sampleRate * 0.5;
+            const buffer = audioContext.createBuffer(1, bufferLength, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferLength; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            
+            reverbNode.buffer = buffer;
+            
+            // Connect nodes
+            sourceNode.connect(reverbNode);
+            reverbNode.connect(audioContext.destination);
+        } catch (error) {
+            console.error('AudioContext error:', error);
+            showNotification('Lo-fi effect not supported');
+            return;
+        }
+    }
+    
+    isLofi = !isLofi;
+    lofiBtn.classList.toggle('active');
+    
+    if (isLofi) {
+        // Apply effects
+        audioContext.resume();
+        showNotification('Lo-fi effect enabled');
+    } else {
+        // Bypass effects
+        sourceNode.disconnect();
+        sourceNode.connect(audioContext.destination);
+        showNotification('Lo-fi effect disabled');
+    }
+}
+
+function downloadCurrent() {
+    if (currentSongIndex === -1 || !songs[currentSongIndex]?.downloadUrl?.[3]?.link) {
+        showNotification('No song to download');
+        return;
+    }
+    
+    const song = songs[currentSongIndex];
+    const downloadUrl = song.downloadUrl[3].link;
+    
+    try {
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `${decodeHTMLEntities(song.name)} - ${decodeHTMLEntities(song.primaryArtists)}.mp3`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showNotification('Download started');
+    } catch (error) {
+        console.error('Download error:', error);
+        showNotification('Download failed');
+    }
 }
 
 // Song Loading and Display
@@ -404,6 +498,14 @@ function decodeHTMLEntities(text) {
     return textArea.value;
 }
 
+function debounce(func, delay) {
+    let timeoutId;
+    return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
 // Theme Toggle
 function toggleTheme() {
     document.body.classList.toggle('dark-mode');
@@ -442,18 +544,18 @@ function setupEventListeners() {
         currentPage = 1;
         searchSongs(query);
     });
-    searchInput.addEventListener('keypress', (e) => {
+    
+    const debouncedSearch = debounce((e) => {
         if (e.key === 'Enter') {
             const query = searchInput.value.trim() || 'Hindi';
             currentQuery = query;
             currentPage = 1;
             searchSongs(query);
         }
-    });
+    }, 500);
+    
+    searchInput.addEventListener('keypress', debouncedSearch);
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    setupEventListeners();
-    initPlayer();
-});
+document.addEventListener('DOMContentLoaded', initPlayer);
