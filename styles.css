@@ -100,10 +100,25 @@ nav {
 }
 
 .logo-img {
-    height: 30px; /* Adjust based on your needs */
+    max-height: 40px; /* Maximum height */
+    height: auto;
     width: auto;
-    border-radius: 4px; /* Optional for rounded corners */
-    object-fit: contain;
+    max-width: 150px; /* Maximum width */
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .logo-img {
+        max-height: 30px;
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-img {
+        max-height: 25px;
+        max-width: 100px;
+    }
 }
 
 /* Remove the music icon if you don't want it */
