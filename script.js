@@ -21,7 +21,6 @@ const searchInput = document.getElementById('searchInput');
 const searchButton = document.getElementById('searchButton');
 const songResults = document.getElementById('songResults');
 const notification = document.getElementById('notification');
-const loadMoreBtn = document.getElementById('loadMoreBtn');
 const loadSpinner = document.getElementById('loadSpinner');
 const miniPlayer = document.getElementById('miniPlayer');
 const miniPlayBtn = document.getElementById('miniPlayBtn');
@@ -74,7 +73,7 @@ searchInput.addEventListener('keypress', (e) => {
     }
 });
 
-loadMoreBtn.addEventListener('click', loadMoreSongs);
+
 
 closePlayer.addEventListener('click', () => {
     playerPopup.classList.remove('active');
@@ -106,7 +105,6 @@ async function searchSongs(query, append = false) {
     if (isLoading) return;
     
     isLoading = true;
-    loadMoreBtn.disabled = true;
     loadSpinner.style.display = 'inline-block';
     loadMoreBtn.querySelector('span').style.display = 'none';
     
@@ -116,7 +114,7 @@ async function searchSongs(query, append = false) {
     }
 
     try {
-        const response = await fetch(`https://jiosaavn-api-privatecvc2.vercel.app/search/songs?query=${encodeURIComponent(query)}&limit=40&page=${currentPage}`);
+        const response = await fetch(`https://jiosaavn-api-privatecvc2.vercel.app/search/songs?query=${encodeURIComponent(query)}`);
         const data = await response.json();
         const newSongs = data.data.results.filter(song => song.downloadUrl);
         
